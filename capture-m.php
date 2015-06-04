@@ -1,5 +1,24 @@
 #!/usr/bin/php -q
 <?
+$m = new Memcached();
+$m->addServer('localhost', 11211);
+
+$key_prefix='CONFIG_CAMERA_';
+$config['DIR_LATEST']=$m->get($key_prefix . 'DIR_LATEST');
+$config['IMAGE_SCALED_WIDTH']=$m->get($key_prefix . 'IMAGE_SCALED_WIDTH');
+$config['IMAGE_SCALED_HEIGHT']=$m->get($key_prefix . 'IMAGE_SCALED_HEIGHT');
+$config['IMAGE_ROTATION']=$m->get($key_prefix . 'IMAGE_ROTATION');
+$config['EPEG_ARGS']=$m->get($key_prefix . 'EPEG_ARGS');
+$config['RASPISTILL_ARGS']=$m->get($key_prefix . 'RASPISTILL_ARGS');
+$config['RASPISTILL_WIDTH']=$m->get($key_prefix . 'RASPISTILL_WIDTH');
+$config['RASPISTILL_HEIGHT']=$m->get($key_prefix . 'RASPISTILL_HEIGHT');
+$config['DIR_ACTION']=$m->get($key_prefix . 'DIR_ACTION');
+
+print_r($config);
+$m->quit();
+die("done");
+
+
 
 /* locations */
 define('DIR_LATEST','/run/shm/cam/latest');
@@ -37,20 +56,11 @@ if ( 2 == $_SERVER['argc'] ) {
 
 /* resize image */
 function do_resize($timestamp,$full,$scaled) {
-	/* epeg */
 	$cmd_resize=sprintf("epeg -w %s -h %s %s %s %s",
 		IMAGE_SCALED_WIDTH,
 		IMAGE_SCALED_HEIGHT,
 		EPEG_ARGS,
 		$full,
-		$scaled
-	);
-
-	/* convert */
-	$cmd_resize=sprintf("convert %s -scale %sx%s %s",
-		$full,
-		IMAGE_SCALED_WIDTH,
-		IMAGE_SCALED_HEIGHT,
 		$scaled
 	);
 		
